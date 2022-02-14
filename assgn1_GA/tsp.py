@@ -1,5 +1,6 @@
 from random import shuffle, randint, uniform
 import math
+import matplotlib.pyplot as plt
 
 # constants
 FILENAME = "file-tsp.txt"
@@ -8,8 +9,8 @@ MATRIX_SIZE = (50, 2)
 # MATRIX_SIZE = (280, 2) 
 # FILENAME = "file_b_cities.txt"
 # MATRIX_SIZE = (29, 2) 
-POP_SIZE = 50 # if odd, 1 will disappear as crossover creates 2 offspring
-TERM_LOOPS = 1500
+POP_SIZE = 1500 # if odd, 1 will disappear as crossover creates 2 offspring
+TERM_LOOPS = 200
 MUTATION = 0.1
 
 # flag to set if want to run 2-opt version
@@ -209,6 +210,10 @@ def main():
     # evaluate the fitness of the population
     distance, fitness = fitnessEval(population, cities)
 
+    # track best and average fitness over time
+    bestFitness = [max(fitness)]
+    averageFitness = [sum(fitness) / len(fitness)]
+
     # loop until reach termination condition
     counter = 0
     while counter < TERM_LOOPS:
@@ -234,8 +239,37 @@ def main():
         # simply fully replace
         population = mutatedCandidates
 
-    
+        # update fitness tracker
+        bestFitness.append(max(fitness))
+        averageFitness.append(sum(fitness) / len(fitness))
+
+    return bestFitness, averageFitness
 
 
 if __name__ == '__main__':
-    main()
+    totalBF = []
+    totalAF = []
+    # run it 10 times
+    for i in range(0, 10):
+        bestFitness, averageFitness = main()
+        totalBF.append(bestFitness)
+        totalAF.append(averageFitness)
+
+
+    # plot the best fitness
+    for i in range(0, len(totalBF)):
+        plt.plot(list(range(0, TERM_LOOPS + 1)), totalBF[i])
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Best Fitness')
+    plt.title('Best Fitness over Time')
+    plt.show()
+
+    # plot the average fitness
+    for i in range(0, len(totalAF)):
+        plt.plot(list(range(0, TERM_LOOPS + 1)), totalAF[i])
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Average Fitness')
+    plt.title('Average Fitness over Time')
+    plt.show()
