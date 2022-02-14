@@ -3,10 +3,17 @@ import math
 
 # constants
 FILENAME = "file-tsp.txt"
-MATRIX_SIZE = (50, 2)
+MATRIX_SIZE = (50, 2) 
+# FILENAME = "file_drilling.txt"
+# MATRIX_SIZE = (280, 2) 
+# FILENAME = "file_b_cities.txt"
+# MATRIX_SIZE = (29, 2) 
 POP_SIZE = 50 # if odd, 1 will disappear as crossover creates 2 offspring
-TERM_LOOPS = 500
+TERM_LOOPS = 1500
 MUTATION = 0.1
+
+# flag to set if want to run 2-opt version
+TWO_OPT = False
 
 
 
@@ -164,12 +171,40 @@ def mutation(population, mutationRate):
     return mutatedPop
 
 
+def twoOpt(population, cities):
+    sortedPop = []
+
+    for i in population:
+        j = randint(0, len(i) - 1)
+        k = randint(j, len(i) - 1)
+
+        offspring = []
+        y = k - 1
+        for x in range(0, j):
+            offspring.append(i[x])
+
+        while(y >= j):
+            offspring.append(i[y])
+            y-=1
+
+        for x in range(k, len(i)):
+            offspring.append(i[x])
+
+        sortedPop.append(offspring)
+
+    return sortedPop
+
+
 def main():
     # get the location of the cities
     cities = readFile(FILENAME, MATRIX_SIZE)
     
     # initialize the population
     population = initPopulation(POP_SIZE, len(cities))
+
+    # if relevant do local search to population
+    if TWO_OPT:
+        population = twoOpt(population, cities)
 
     # evaluate the fitness of the population
     distance, fitness = fitnessEval(population, cities)
@@ -181,6 +216,10 @@ def main():
         print(max(fitness))
         print(min(distance))
         print("*********")
+
+        # if relevant do local search to population
+        if TWO_OPT:
+            population = twoOpt(population, cities)
 
         # crossover which selects candidates using binary tournament selection
         crossedCandidates = crossover(population, fitness)
