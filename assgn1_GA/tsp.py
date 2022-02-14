@@ -1,18 +1,26 @@
 from random import shuffle, randint, uniform
 import math
+import matplotlib.pyplot as plt
 
 # constants
 FILENAME = "file-tsp.txt"
-MATRIX_SIZE = (50, 2)
-POP_SIZE = 60
-TERM_LOOPS = 50
+MATRIX_SIZE = (50, 2) 
+# FILENAME = "file_drilling.txt"
+# MATRIX_SIZE = (280, 2) 
+# FILENAME = "file_b_cities.txt"
+# MATRIX_SIZE = (29, 2) 
+POP_SIZE = 1500 # if odd, 1 will disappear as crossover creates 2 offspring
+TERM_LOOPS = 200
 MUTATION = 0.1
+
+# flag to set if want to run 2-opt version
+TWO_OPT = False
 
 
 
 # extract the data from the file and put it into a matrix
 def readFile(fileN, mSize):
-    with open("file-tsp.txt", "r") as f:
+    with open(fileN, "r") as f:
         data = f.readlines()
 
     # initialize matrix in given size
@@ -50,7 +58,7 @@ def fitnessEval(population, cities):
             secondC = cities[population[p][city]]
 
             # calculate euclidean distance
-            travel = math.sqrt((firstC[0] + secondC[0]) ** 2 + (firstC[1] + secondC[1]) ** 2)
+            travel = math.sqrt((abs(firstC[0] - secondC[0])) ** 2 + (abs(firstC[1] - secondC[1])) ** 2)
 
             distance[p] += travel
 
@@ -164,6 +172,30 @@ def mutation(population, mutationRate):
     return mutatedPop
 
 
+def twoOpt(population, cities):
+    sortedPop = []
+
+    for i in population:
+        j = randint(0, len(i) - 1)
+        k = randint(j, len(i) - 1)
+
+        offspring = []
+        y = k - 1
+        for x in range(0, j):
+            offspring.append(i[x])
+
+        while(y >= j):
+            offspring.append(i[y])
+            y-=1
+
+        for x in range(k, len(i)):
+            offspring.append(i[x])
+
+        sortedPop.append(offspring)
+
+    return sortedPop
+
+
 def main():
     # get the location of the cities
     cities = readFile(FILENAME, MATRIX_SIZE)
@@ -171,8 +203,16 @@ def main():
     # initialize the population
     population = initPopulation(POP_SIZE, len(cities))
 
+    # if relevant do local search to population
+    if TWO_OPT:
+        population = twoOpt(population, cities)
+
     # evaluate the fitness of the population
     distance, fitness = fitnessEval(population, cities)
+
+    # track best and average fitness over time
+    bestFitness = [max(fitness)]
+    averageFitness = [sum(fitness) / len(fitness)]
 
     # loop until reach termination condition
     counter = 0
@@ -181,6 +221,10 @@ def main():
         print(max(fitness))
         print(min(distance))
         print("*********")
+
+        # if relevant do local search to population
+        if TWO_OPT:
+            population = twoOpt(population, cities)
 
         # crossover which selects candidates using binary tournament selection
         crossedCandidates = crossover(population, fitness)
@@ -195,8 +239,37 @@ def main():
         # simply fully replace
         population = mutatedCandidates
 
-    
+        # update fitness tracker
+        bestFitness.append(max(fitness))
+        averageFitness.append(sum(fitness) / len(fitness))
+
+    return bestFitness, averageFitness
 
 
 if __name__ == '__main__':
-    main()
+    totalBF = []
+    totalAF = []
+    # run it 10 times
+    for i in range(0, 10):
+        bestFitness, averageFitness = main()
+        totalBF.append(bestFitness)
+        totalAF.append(averageFitness)
+
+
+    # plot the best fitness
+    for i in range(0, len(totalBF)):
+        plt.plot(list(range(0, TERM_LOOPS + 1)), totalBF[i])
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Best Fitness')
+    plt.title('Best Fitness over Time')
+    plt.show()
+
+    # plot the average fitness
+    for i in range(0, len(totalAF)):
+        plt.plot(list(range(0, TERM_LOOPS + 1)), totalAF[i])
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Average Fitness')
+    plt.title('Average Fitness over Time')
+    plt.show()
