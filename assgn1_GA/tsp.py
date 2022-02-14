@@ -4,7 +4,7 @@ import math
 # constants
 FILENAME = "file-tsp.txt"
 MATRIX_SIZE = (50, 2)
-POP_SIZE = 20
+POP_SIZE = 60
 TERM_LOOPS = 50
 MUTATION = 0.1
 
@@ -61,16 +61,14 @@ def fitnessEval(population, cities):
     return distance, fitness
 
 
-def tournamentSelection(population, fitness):
+def tournamentSelection(population, fitness, numSelect):
     selected = []
-    # need to fully replace generation and so tournament will select same number
-    nextGenSize = len(population)
 
-    # select enough candidates for reproduction
-    for i in range(0, nextGenSize):
+    # select the specified number of candidates
+    for i in range(0, numSelect):
         # pick 2 random candiates for tournament
-        firstIndex = randint(0, nextGenSize - 1)
-        secondIndex = randint(0, nextGenSize - 1)
+        firstIndex = randint(0, len(population) - 1)
+        secondIndex = randint(0, len(population) - 1)
 
         # choose the candidate with higher fitness
         if fitness[firstIndex] > fitness[secondIndex]:
@@ -81,16 +79,18 @@ def tournamentSelection(population, fitness):
     return selected
 
 
-def crossover(population):
+def crossover(population, fitness):
     mutatedPop = []
     popSize = len(population)
     candidateSize = len(population[0])
 
     # do it enough to completely replace old generation
-    for i in range(0, popSize):
+    for i in range(0, int(popSize / 2)):
         # choose 2 random parents to apply crossover
-        firstParentInd = randint(0, popSize - 1)
-        secondParentInd = randint(0, popSize - 1)
+        # firstParentInd = randint(0, popSize - 1)
+        # secondParentInd = randint(0, popSize - 1)
+        firstParent = tournamentSelection(population, fitness, 1)[0]
+        secondParent = tournamentSelection(population, fitness, 1)[0]
 
         # choose 2 random crossover points
         firstIndex = randint(0, candidateSize - 1)
@@ -105,15 +105,15 @@ def crossover(population):
         # default all -1
         offspring1 = [-1 for x in range(0, candidateSize)]
         # fill in crossover part
-        offspring1[firstIndex:secondIndex] = population[firstParentInd][firstIndex:secondIndex]
+        offspring1[firstIndex:secondIndex] = firstParent[firstIndex:secondIndex]
 
         # fill in the rest of the numbers in order of other parent
         counter = 0
         for i in range(0, len(offspring1)):
             if offspring1[i] == -1:
-                while population[secondParentInd][counter] in offspring1:
+                while secondParent[counter] in offspring1:
                     counter += 1
-                offspring1[i] = population[secondParentInd][counter]
+                offspring1[i] = secondParent[counter]
                 counter += 1
 
 
@@ -121,15 +121,15 @@ def crossover(population):
         # default all -1
         offspring2 = [-1 for x in range(0, candidateSize)]
         # fill in crossover part
-        offspring2[firstIndex:secondIndex] = population[secondParentInd][firstIndex:secondIndex]
+        offspring2[firstIndex:secondIndex] = secondParent[firstIndex:secondIndex]
 
         # fill in the rest of the numbers in order of other parent
         counter = 0
         for i in range(0, len(offspring2)):
             if offspring2[i] == -1:
-                while population[firstParentInd][counter] in offspring2:
+                while firstParent[counter] in offspring2:
                     counter += 1
-                offspring2[i] = population[firstParentInd][counter]
+                offspring2[i] = firstParent[counter]
                 counter += 1
 
 
@@ -178,16 +178,12 @@ def main():
     counter = 0
     while counter < TERM_LOOPS:
         counter += 1
-        print(sum(fitness) / len(fitness))
-        print(sum(distance) / len(distance))
+        print(max(fitness))
+        print(min(distance))
         print("*********")
 
-        # select candidates for reproduction
-        # using binary tournament selection
-        selectedCandidates = tournamentSelection(population, fitness)
-
-        # crossover
-        crossedCandidates = crossover(selectedCandidates)
+        # crossover which selects candidates using binary tournament selection
+        crossedCandidates = crossover(population, fitness)
 
         # mutation
         mutatedCandidates = mutation(crossedCandidates, MUTATION)
@@ -197,7 +193,7 @@ def main():
 
         # select new generation
         # simply fully replace
-        population = selectedCandidates
+        population = mutatedCandidates
 
     
 
