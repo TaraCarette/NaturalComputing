@@ -32,7 +32,7 @@ def run(problem, params):
     pop = empty_individual.repeat(npop)
     for i in range(npop):
         pop[i].position = np.random.uniform(varmin, varmax, nvar)
-        pop[i].cost = costfunc(pop[i].position)
+        pop[i].cost = costfunc(pop[i].position) 
         if pop[i].cost < bestsol.cost:
             bestsol = pop[i].deepcopy()
 
