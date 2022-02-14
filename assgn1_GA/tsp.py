@@ -4,15 +4,15 @@ import math
 # constants
 FILENAME = "file-tsp.txt"
 MATRIX_SIZE = (50, 2)
-POP_SIZE = 60
-TERM_LOOPS = 50
+POP_SIZE = 50 # if odd, 1 will disappear as crossover creates 2 offspring
+TERM_LOOPS = 500
 MUTATION = 0.1
 
 
 
 # extract the data from the file and put it into a matrix
 def readFile(fileN, mSize):
-    with open("file-tsp.txt", "r") as f:
+    with open(fileN, "r") as f:
         data = f.readlines()
 
     # initialize matrix in given size
@@ -50,7 +50,7 @@ def fitnessEval(population, cities):
             secondC = cities[population[p][city]]
 
             # calculate euclidean distance
-            travel = math.sqrt((firstC[0] + secondC[0]) ** 2 + (firstC[1] + secondC[1]) ** 2)
+            travel = math.sqrt((abs(firstC[0] - secondC[0])) ** 2 + (abs(firstC[1] - secondC[1])) ** 2)
 
             distance[p] += travel
 
