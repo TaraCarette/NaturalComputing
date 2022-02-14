@@ -3,26 +3,28 @@ import matplotlib.pyplot as plt
 from ypstruct import structure
 import ga8
 
-# Sphere Test Function
-def sphere(x):
+
     # Find a function of one independent
     # variable, in symbolic form, that fits a
     # given sample of 21 (xi, yi) data points -> insert datapoints
     # we have y and we need x
     
-    return sum(x**2)
-    #answer = sum(x**4 + x**3 + x**2 + x)
+def sphere(x):
+
+    return sum(x**2) # this is from the old code
+
+    # answer = sum(x**4 + x**3 + x**2 + x)
     
 # The sum, taken over the 21 fitness cases,
 # of the absolute value of difference
 # between value of the dependent variable
 # produced by the individual program and
 # the target value yi of the dependent variable
-    
+
 
 # Problem Definition
 problem = structure()
-problem.costfunc = sphere
+problem.costfunc = sphere # -> change to correct problem points
 problem.nvar = 21
 problem.varmin = -1
 problem.varmax = 1
@@ -35,6 +37,7 @@ params = structure()
 params.maxit = 50
 params.npop = 50 # change later to 500
 
+# these below I still have to figure out
 params.beta = 1
 params.pc = 1
 params.gamma = 0.1
