@@ -3,14 +3,14 @@ import math
 import matplotlib.pyplot as plt
 
 # constants
-FILENAME = "file-tsp.txt"
-MATRIX_SIZE = (50, 2) 
+# FILENAME = "file-tsp.txt"
+# MATRIX_SIZE = (50, 2) 
 # FILENAME = "file_drilling.txt"
 # MATRIX_SIZE = (280, 2) 
-# FILENAME = "file_b_cities.txt"
-# MATRIX_SIZE = (29, 2) 
-POP_SIZE = 60 # if odd, 1 will disappear as crossover creates 2 offspring
-TERM_LOOPS = 500
+FILENAME = "file_b_cities.txt"
+MATRIX_SIZE = (29, 2) 
+POP_SIZE = 10 # if odd, 1 will disappear as crossover creates 2 offspring
+TERM_LOOPS = 1500
 MUTATION = 0.1
 
 # flag to set if want to run 2-opt version
@@ -173,28 +173,6 @@ def mutation(population, mutationRate):
     return mutatedPop
 
 
-# def twoOpt(population, cities):
-#     sortedPop = []
-
-#     for i in population:
-#         j = randint(0, len(i) - 1)
-#         k = randint(j, len(i) - 1)
-
-#         offspring = []
-#         y = k - 1
-#         for x in range(0, j):
-#             offspring.append(i[x])
-
-#         while(y >= j):
-#             offspring.append(i[y])
-#             y-=1
-
-#         for x in range(k, len(i)):
-#             offspring.append(i[x])
-
-#         sortedPop.append(offspring)
-
-#     return sortedPop
 
 def twoOptSwap(parent, j, k):
     # make a copy to be offsping
@@ -267,11 +245,8 @@ def main():
         counter += 1
         print(max(fitness))
         print(min(distance))
+        print(counter)
         print("*********")
-
-        # if relevant do local search to population
-        if TWO_OPT:
-            population = twoOpt(population, cities)
 
         # crossover which selects candidates using binary tournament selection
         crossedCandidates = crossover(population, fitness)
@@ -279,12 +254,16 @@ def main():
         # mutation
         mutatedCandidates = mutation(crossedCandidates, MUTATION)
 
-        # update fitness
-        distance, fitness = fitnessEval(mutatedCandidates, cities)
+        # if relevant do local search to population
+        if TWO_OPT:
+            population = twoOpt(mutatedCandidates, cities)
+        else:
+            # select new generation
+            # simply fully replace
+            population = mutatedCandidates
 
-        # select new generation
-        # simply fully replace
-        population = mutatedCandidates
+        # update fitness
+        distance, fitness = fitnessEval(population, cities)
 
         # update fitness tracker
         bestFitness.append(max(fitness))
@@ -297,7 +276,8 @@ if __name__ == '__main__':
     totalBF = []
     totalAF = []
     # run it 10 times
-    for i in range(0, 1):
+    for i in range(0, 5):
+        print("On loop " + str(i))
         bestFitness, averageFitness = main()
         totalBF.append(bestFitness)
         totalAF.append(averageFitness)
