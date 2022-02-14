@@ -9,12 +9,13 @@ MATRIX_SIZE = (50, 2)
 # MATRIX_SIZE = (280, 2) 
 # FILENAME = "file_b_cities.txt"
 # MATRIX_SIZE = (29, 2) 
-POP_SIZE = 1500 # if odd, 1 will disappear as crossover creates 2 offspring
-TERM_LOOPS = 200
+POP_SIZE = 60 # if odd, 1 will disappear as crossover creates 2 offspring
+TERM_LOOPS = 500
 MUTATION = 0.1
 
 # flag to set if want to run 2-opt version
-TWO_OPT = False
+TWO_OPT = True
+
 
 
 
@@ -172,28 +173,74 @@ def mutation(population, mutationRate):
     return mutatedPop
 
 
+# def twoOpt(population, cities):
+#     sortedPop = []
+
+#     for i in population:
+#         j = randint(0, len(i) - 1)
+#         k = randint(j, len(i) - 1)
+
+#         offspring = []
+#         y = k - 1
+#         for x in range(0, j):
+#             offspring.append(i[x])
+
+#         while(y >= j):
+#             offspring.append(i[y])
+#             y-=1
+
+#         for x in range(k, len(i)):
+#             offspring.append(i[x])
+
+#         sortedPop.append(offspring)
+
+#     return sortedPop
+
+def twoOptSwap(parent, j, k):
+    # make a copy to be offsping
+    offspring = parent.copy()
+
+    # reverse the specified section
+    temp = parent[j:k + 1].copy()
+    temp.reverse()
+
+    # replace relevant part of offspring with reversed section
+    offspring[j:k + 1] = temp
+
+    return offspring
+
+
+def twoOptCalc(parent, distance, cities):
+    # keep track of improved root and distance
+    bestDistance = distance
+    bestRoute = parent
+
+    # loop over all sequences of nodes that can be swapped
+    i = 0
+    while(i < len(parent)):
+        k = i + 1
+        while(k < len(parent)):
+            newRoute = twoOptSwap(parent, i, k)
+            newDistance, _ = fitnessEval([newRoute], cities)
+            if newDistance[0] < bestDistance:
+                bestDistance = newDistance[0]
+                bestRoute = newRoute
+            k += 1
+        i += 1
+
+    return bestRoute
+
+
 def twoOpt(population, cities):
-    sortedPop = []
+    distance, _ = fitnessEval(population, cities)
 
-    for i in population:
-        j = randint(0, len(i) - 1)
-        k = randint(j, len(i) - 1)
+    optPopulation = []
+    # apply 2 opt to each member of the population to improve it
+    for p in range(0, len(population)):
+        route = twoOptCalc(population[p], distance[p], cities)
+        optPopulation.append(route)
 
-        offspring = []
-        y = k - 1
-        for x in range(0, j):
-            offspring.append(i[x])
-
-        while(y >= j):
-            offspring.append(i[y])
-            y-=1
-
-        for x in range(k, len(i)):
-            offspring.append(i[x])
-
-        sortedPop.append(offspring)
-
-    return sortedPop
+    return optPopulation
 
 
 def main():
@@ -250,7 +297,7 @@ if __name__ == '__main__':
     totalBF = []
     totalAF = []
     # run it 10 times
-    for i in range(0, 10):
+    for i in range(0, 1):
         bestFitness, averageFitness = main()
         totalBF.append(bestFitness)
         totalAF.append(averageFitness)
