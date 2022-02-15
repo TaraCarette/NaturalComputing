@@ -9,8 +9,8 @@ MATRIX_SIZE = (50, 2)
 # MATRIX_SIZE = (280, 2) 
 # FILENAME = "file_b_cities.txt"
 # MATRIX_SIZE = (29, 2) 
-POP_SIZE = 60 # if odd, 1 will disappear as crossover creates 2 offspring
-TERM_LOOPS = 500
+POP_SIZE = 10 # if odd, 1 will disappear as crossover creates 2 offspring
+TERM_LOOPS = 1500
 MUTATION = 0.1
 
 # flag to set if want to run 2-opt version
@@ -59,7 +59,7 @@ def fitnessEval(population, cities):
             secondC = cities[population[p][city]]
 
             # calculate euclidean distance
-            travel = math.sqrt((abs(firstC[0] - secondC[0])) ** 2 + (abs(firstC[1] - secondC[1])) ** 2)
+            travel = math.sqrt((firstC[0] - secondC[0]) ** 2 + (firstC[1] - secondC[1]) ** 2)
 
             distance[p] += travel
 
@@ -96,8 +96,6 @@ def crossover(population, fitness):
     # do it enough to completely replace old generation
     for i in range(0, int(popSize / 2)):
         # choose 2 random parents to apply crossover
-        # firstParentInd = randint(0, popSize - 1)
-        # secondParentInd = randint(0, popSize - 1)
         firstParent = tournamentSelection(population, fitness, 1)[0]
         secondParent = tournamentSelection(population, fitness, 1)[0]
 
@@ -173,72 +171,30 @@ def mutation(population, mutationRate):
     return mutatedPop
 
 
-# def twoOpt(population, cities):
-#     sortedPop = []
-
-#     for i in population:
-#         j = randint(0, len(i) - 1)
-#         k = randint(j, len(i) - 1)
-
-#         offspring = []
-#         y = k - 1
-#         for x in range(0, j):
-#             offspring.append(i[x])
-
-#         while(y >= j):
-#             offspring.append(i[y])
-#             y-=1
-
-#         for x in range(k, len(i)):
-#             offspring.append(i[x])
-
-#         sortedPop.append(offspring)
-
-#     return sortedPop
-
-def twoOptSwap(parent, j, k):
-    # make a copy to be offsping
-    offspring = parent.copy()
-
-    # reverse the specified section
-    temp = parent[j:k + 1].copy()
-    temp.reverse()
-
-    # replace relevant part of offspring with reversed section
-    offspring[j:k + 1] = temp
-
-    return offspring
-
-
-def twoOptCalc(parent, distance, cities):
-    # keep track of improved root and distance
-    bestDistance = distance
-    bestRoute = parent
-
-    # loop over all sequences of nodes that can be swapped
-    i = 0
-    while(i < len(parent)):
-        k = i + 1
-        while(k < len(parent)):
-            newRoute = twoOptSwap(parent, i, k)
-            newDistance, _ = fitnessEval([newRoute], cities)
-            if newDistance[0] < bestDistance:
-                bestDistance = newDistance[0]
-                bestRoute = newRoute
-            k += 1
-        i += 1
-
-    return bestRoute
-
-
 def twoOpt(population, cities):
     distance, _ = fitnessEval(population, cities)
 
     optPopulation = []
     # apply 2 opt to each member of the population to improve it
     for p in range(0, len(population)):
-        route = twoOptCalc(population[p], distance[p], cities)
-        optPopulation.append(route)
+        # keep track of improved root and distance
+        bestDistance = distance[p]
+        bestRoute = population[p]
+
+        # loop over all sequences of nodes that can be swapped
+        i = 1
+        while(i < len(population[p])):
+            k = i + 1
+            while(k < len(population[p])):
+                newRoute = population[p][0:i] + population[p][k:i - 1:-1] + population[p][k + 1:]
+                newDistance, _ = fitnessEval([newRoute], cities)
+                if newDistance[0] < bestDistance:
+                    bestDistance = newDistance[0]
+                    bestRoute = newRoute
+                k += 1
+            i += 1
+
+        optPopulation.append(bestRoute)
 
     return optPopulation
 
@@ -267,11 +223,8 @@ def main():
         counter += 1
         print(max(fitness))
         print(min(distance))
+        print(counter)
         print("*********")
-
-        # if relevant do local search to population
-        if TWO_OPT:
-            population = twoOpt(population, cities)
 
         # crossover which selects candidates using binary tournament selection
         crossedCandidates = crossover(population, fitness)
@@ -279,12 +232,16 @@ def main():
         # mutation
         mutatedCandidates = mutation(crossedCandidates, MUTATION)
 
-        # update fitness
-        distance, fitness = fitnessEval(mutatedCandidates, cities)
+        # if relevant do local search to population
+        if TWO_OPT:
+            population = twoOpt(mutatedCandidates, cities)
+        else:
+            # select new generation
+            # simply fully replace
+            population = mutatedCandidates
 
-        # select new generation
-        # simply fully replace
-        population = mutatedCandidates
+        # update fitness
+        distance, fitness = fitnessEval(population, cities)
 
         # update fitness tracker
         bestFitness.append(max(fitness))
@@ -293,11 +250,13 @@ def main():
     return bestFitness, averageFitness
 
 
+
 if __name__ == '__main__':
     totalBF = []
     totalAF = []
     # run it 10 times
-    for i in range(0, 1):
+    for i in range(0, 10):
+        print("On loop " + str(i))
         bestFitness, averageFitness = main()
         totalBF.append(bestFitness)
         totalAF.append(averageFitness)
