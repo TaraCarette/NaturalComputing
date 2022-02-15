@@ -57,16 +57,16 @@ def GetFitness(Ind, verbosefile=None):      ## MODIFY ME FOR DIFFERENT PROBLEMS
 #    x = x + v;
 
   # Initialisation
-  a = random.random()*100;
+  a = random.random()*100
   x = 10*math.sin(a)
   y = 10*math.cos(a)
-  Steps = 20;
+  Steps = 20
   for count in range(Steps):
-    Ind.Parameters()[0] = x;
-    Ind.Parameters()[1] = y;
+    Ind.Parameters()[0] = x
+    Ind.Parameters()[1] = y
 #    if verbosefile != None:
 #      verbosefile.write(str(x)+","+str(y)+",")
-    angle = ev(Ind.Events[0]);
+    angle = ev(Ind.Events[0])
     x = x + math.cos(angle)*1
     y = y + math.sin(angle)*1
     if math.sqrt(x*x+y*y) < 0.5:
@@ -78,12 +78,12 @@ def GetFitness(Ind, verbosefile=None):      ## MODIFY ME FOR DIFFERENT PROBLEMS
 #  Ind.MyParams[1] = random.random();
 #  angle = ev(Ind.Events[0]);
 
-  result = count;
-  ideal = 0;
-  maximum = Steps;
+  result = count
+  ideal = 0
+  maximum = Steps
   parsimonyweight = 1
   # End fitenss calculation. Do not change.
-  fitness =max(maximum-abs(result-ideal),0);
+  fitness =max(maximum-abs(result-ideal),0)
   
   # regulate to non-negative only.
   fitness = float(max(0,fitness));  # fitness is 100-end distance from target.
@@ -105,11 +105,11 @@ class Node:
   def __init__(self, fIndividual, fParent, fChildren = []):
     #if type(fIndividual) != type(Individual()):
     #  print "NO!" + str(fIndividual)
-    self.OutType = TNone;
-    self.Parent = fParent;
+    self.OutType = TNone
+    self.Parent = fParent
     self.AcceptsTypes = []
     self.Children = fChildren
-    self.Individual = fIndividual;
+    self.Individual = fIndividual
     self.Name = "Abstract"
     #print "My Children: (should be none)" + str(self.Children)
     #print "My Children: (should be none)" + str(fChildren)
@@ -127,10 +127,10 @@ class Node:
     return 0
   def __tree__(self, indent):
     # printing of node tree
-    r =  indent+self.Name+": "+str(self)+"\n";
+    r =  indent+self.Name+": "+str(self)+"\n"
     for child in self.Children:
-      r = r + child.__tree__(indent+"  ");
-    return r;
+      r = r + child.__tree__(indent+"  ")
+    return r
   def __random__(self, depth=1):
     pass
   def __text__(self):
@@ -140,27 +140,27 @@ class Node:
   def __whichchild__(self,aChild):
     for i in range(len(self.Children)):
       if aChild == self.Children[i]:
-        return i;
+        return i
   def __route__(self):
     # find the route to this node recursively. If the parent is None, return [].
     # the leftmost entry in the list is the most significant, eg. closest to the root.
     if self.Parent == None:
       return []
     else:
-      return self.Parent.__route__() + [self.Parent.__whichchild__(self)];
+      return self.Parent.__route__() + [self.Parent.__whichchild__(self)]
 
 class LiteralNode(Node):
   def __init__(self, fIndividual, fParent, fChildren = []):
-    Node.__init__(self, fIndividual, fParent, fChildren);
+    Node.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Abstract Literal"
   def __eval__(self):
     return "Abstract Literal"
   def __text__(self):    # This is the only type of abstract node that always has the same __text__
-    return str(self.val);
+    return str(self.val)
 
 class LinkNode(Node):
   def __init__(self, fIndividual, fParent, fChildren = []):
-    Node.__init__(self, fIndividual, fParent, fChildren);
+    Node.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Abstract Link"
     self.called = 0
   def __eval__(self):
@@ -170,7 +170,7 @@ class LinkNode(Node):
     #       BEFORE THE BRANCHES.    
     ChildEval = []
     for child in self.Children:
-      ChildEval = ChildEval + [ev(child)];
+      ChildEval = ChildEval + [ev(child)]
     # The answers are now in ChildEval. Pass them to the function.
     return self.evaluate(ChildEval)
   def GetRandomChildren(self,depth = 1): # This is a bit legacy. Should be bundled with __random__
@@ -211,30 +211,30 @@ class LinkNode(Node):
       child.Parent = self
       child.__fix__()
   def __random__(self, depth = 1):
-    self.GetRandomChildren(depth);
+    self.GetRandomChildren(depth)
     
 # These are just as linknode, but with more default children.
 # Use these if you're terminally lazy :)
 class UnaryNode(LinkNode):           
   def __init__(self, fIndividual, fParent, fChildren = [None]):
     #LinkNode.__init__(self, fIndividual, fParent, fChildren);
-    LinkNode.__init__(self, fIndividual, fParent, [None]);
+    LinkNode.__init__(self, fIndividual, fParent, [None])
     self.Name = "Abstract Unary"
   def evaluate(self, params):
-    return params[0];
+    return params[0]
 class BinaryNode(LinkNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
     #LinkNode.__init__(self, fIndividual, fParent, fChildren);
-    LinkNode.__init__(self, fIndividual, fParent, [None, None]);
+    LinkNode.__init__(self, fIndividual, fParent, [None, None])
 
 class ThreewayNode(LinkNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None, None]):
     #LinkNode.__init__(self, fIndividual, fParent, fChildren);
-    LinkNode.__init__(self, fIndividual, fParent, [None, None, None]);
+    LinkNode.__init__(self, fIndividual, fParent, [None, None, None])
     
 class ComparativeBinaryNode(BinaryNode): # Legacy
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
-    BinaryNode.__init__(self, fIndividual, fParent,fChildren);
+    BinaryNode.__init__(self, fIndividual, fParent,fChildren)
 
 
 pass #################################### ** SPECIFIC NODES
@@ -242,30 +242,30 @@ pass ################ (Literals)
 class IntegerLiteralNode(LiteralNode):
   def __init__(self, fIndividual, fParent, fChildren = []):
     LiteralNode.__init__(self, fIndividual, fParent, fChildren)
-    self.val = 0;
+    self.val = 0
     self.Name = "Integer Literal"
   def __eval__(self):
-    return self.val;
+    return self.val
   def __random__(self, depth=1):
     self.val = int(random.gauss(0,10.0)*random.gauss(0,10.0))
 
 class BooleanLiteralNode(LiteralNode):
   def __init__(self, fIndividual, fParent, fChildren = []):
     LiteralNode.__init__(self, fIndividual, fParent, fChildren)
-    self.val = 0;
+    self.val = 0
     self.Name = "Boolean Literal"
   def __eval__(self):
-    return self.val;
+    return self.val
   def __random__(self, depth=1):
     self.val = random.choice(range(2)); # chooses 0 or 1 randomly.
 
 class FloatLiteralNode(LiteralNode):
   def __init__(self, fIndividual, fParent, fChildren = []):
     LiteralNode.__init__(self, fIndividual, fParent, fChildren)
-    self.val = float(0);
+    self.val = float(0)
     self.Name = "Float Literal"
   def __eval__(self):
-    return self.val;
+    return self.val
   def __random__(self, depth = 1):
     self.val = (random.gauss(0,1.0))  # Gauss distro. Good as any.
 
@@ -273,10 +273,10 @@ class ParameterLiteralNode(LiteralNode):
   def __init__(self, fIndividual, fParent, fChildren = []):
     LiteralNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Parameter Literal"
-    self.ParamID = -1;
+    self.ParamID = -1
   def __eval__(self):
     if self.ParamID > -1:
-      return self.Individual.Parameters()[self.ParamID];
+      return self.Individual.Parameters()[self.ParamID]
     else:
       return 0
   def __random__(self, depth = 1):
@@ -285,114 +285,114 @@ class ParameterLiteralNode(LiteralNode):
 #    except:
 #      self.ParamID = -1;
   def __text__(self):
-    return "P["+str(self.ParamID)+"]";
+    return "P["+str(self.ParamID)+"]"
 
 Literals = [IntegerLiteralNode, BooleanLiteralNode, FloatLiteralNode, ParameterLiteralNode]
 pass ################ (Unaries)
 class SineUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent, fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Sine Unary"
 #    if isinstance(self.Children[0],Node):
 #      if not self.Accepts(self.Children[0].OutType):
 #        print "ERROR - Sine Unary Create attempted with wrong type"
         # raise an error or something?
   def evaluate(self,params):
-    return math.sin(params[0]);
+    return math.sin(params[0])
   def __text__(self):
-    return "sin("+self.Children[0].__text__()+")";
+    return "sin("+self.Children[0].__text__()+")"
 
 class CosineUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent, fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Cosine Unary"
   def evaluate(self, params):
-    return math.cos(params[0]);
+    return math.cos(params[0])
   def __text__(self):
-    return "cos("+self.Children[0].__text__()+")";
+    return "cos("+self.Children[0].__text__()+")"
 
 class AbsUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent, fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Abs Unary"
   def evaluate(self,params):
-    return abs(params[0]);
+    return abs(params[0])
   def __text__(self):
-    return "abs("+self.Children[0].__text__()+")";
+    return "abs("+self.Children[0].__text__()+")"
 
 class NegateUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent, fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Negate Unary"
   def evalaute(self,params):
-    return -(params[0]);
+    return -(params[0])
   def __text__(self):
-    return "(-("+self.Children[0].__text__()+"))";
+    return "(-("+self.Children[0].__text__()+"))"
 
 class SquareRootUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent,fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "Square Root Unary"
   def evaluate(self,params):
-    return math.sqrt(abs(params[0]));
+    return math.sqrt(abs(params[0]))
   def __text__(self):
-    return "sqrt("+self.Children[0].__text__()+")";
+    return "sqrt("+self.Children[0].__text__()+")"
 
 class SquareUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent,fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "Square Unary"
   def evaluate(self, params):
-    return (params[0])**2;
+    return (params[0])**2
   def __text__(self):
-    return "sqr("+self.Children[0].__text__()+")";
+    return "sqr("+self.Children[0].__text__()+")"
 
 class PassThroughUnaryNode(UnaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None]):
-    UnaryNode.__init__(self, fIndividual, fParent,fChildren);
+    UnaryNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "PassThrough Unary"
   def evaluate(self,params):
-    return params[0];
+    return params[0]
   def __text__(self):
-    return self.Children[0].__text__();
+    return self.Children[0].__text__()
 
-Unaries = [SineUnaryNode, CosineUnaryNode, AbsUnaryNode, NegateUnaryNode, SquareRootUnaryNode, SquareUnaryNode];
+Unaries = [SineUnaryNode, CosineUnaryNode, AbsUnaryNode, NegateUnaryNode, SquareRootUnaryNode, SquareUnaryNode]
 pass ################ (Binaries)
 class AddBinaryNode(BinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
     BinaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Add Binary"
   def evaluate(self, params):
-    return params[0] + params[1];
+    return params[0] + params[1]
   def __text__(self):
-    return "("+self.Children[0].__text__()+"+"+self.Children[1].__text__()+")";
+    return "("+self.Children[0].__text__()+"+"+self.Children[1].__text__()+")"
 
 class ArcTan2BinaryNode(BinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
     BinaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "ArcTan2 Binary"
   def evaluate(self, params):
-    return math.atan2(params[0],params[1]);
+    return math.atan2(params[0],params[1])
   def __text__(self):
-    return "arctan2("+self.Children[0].__text__()+","+self.Children[1].__text__()+")";
+    return "arctan2("+self.Children[0].__text__()+","+self.Children[1].__text__()+")"
 
 class SubtractBinaryNode(BinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
     BinaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Subtract Binary"
   def evaluate(self,params):
-    return params[0] - params[1];
+    return params[0] - params[1]
   def __text__(self):
-    return "("+self.Children[0].__text__()+"-"+self.Children[1].__text__()+")";
+    return "("+self.Children[0].__text__()+"-"+self.Children[1].__text__()+")"
 
 class MultiplyBinaryNode(BinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
     BinaryNode.__init__(self, fIndividual, fParent, fChildren)
     self.Name = "Multiply Binary"
   def evaluate(self,params):
-    return params[0] * params[1];
+    return params[0] * params[1]
   def __text__(self):
-    return "("+self.Children[0].__text__()+"*"+self.Children[1].__text__()+")";
+    return "("+self.Children[0].__text__()+"*"+self.Children[1].__text__()+")"
 
 class DivideBinaryNode(BinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
@@ -400,15 +400,15 @@ class DivideBinaryNode(BinaryNode):
     self.Name = "Divide Binary"
   def evaluate(self, params):
     try:
-      return params[0]/params[1];
+      return params[0]/params[1]
     except:
       return 0
   def __text__(self):
-    return "("+self.Children[0].__text__()+"/"+self.Children[1].__text__()+")";
+    return "("+self.Children[0].__text__()+"/"+self.Children[1].__text__()+")"
 
 class LessEqualBinaryNode(ComparativeBinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
-    ComparativeBinaryNode.__init__(self, fIndividual, fParent,fChildren);
+    ComparativeBinaryNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "Lesser/Equal Binary Node"
   def evaluate(self, params):
     return (params[0] <= params[1])
@@ -417,7 +417,7 @@ class LessEqualBinaryNode(ComparativeBinaryNode):
 
 class GreaterEqualBinaryNode(ComparativeBinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None, None]):
-    ComparativeBinaryNode.__init__(self, fIndividual, fParent,fChildren);
+    ComparativeBinaryNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "Greater/Equal Binary Node"
   def evaluate(self, params):
     return (params[0] <= params[1])
@@ -426,7 +426,7 @@ class GreaterEqualBinaryNode(ComparativeBinaryNode):
 
 class PowerBinaryNode(BinaryNode):
   def __init__(self, fIndividual, fParent, fChildren = [None,None]):
-    BinaryNode.__init__(self, fIndividual, fParent,fChildren);
+    BinaryNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "Raise To Power Binary Node"
   def evaluate(self, params):
     try:
@@ -434,21 +434,21 @@ class PowerBinaryNode(BinaryNode):
     except:
       return 0
   def __text__(self):
-    return "pow("+self.Children[0].__text__()+","+self.Children[1].__text__()+")";
+    return "pow("+self.Children[0].__text__()+","+self.Children[1].__text__()+")"
 
 Binaries = [ArcTan2BinaryNode, AddBinaryNode, SubtractBinaryNode, MultiplyBinaryNode, DivideBinaryNode, PowerBinaryNode,LessEqualBinaryNode,GreaterEqualBinaryNode]
 pass ################ (Threeways)
 class IsNearThreewayNode(ThreewayNode): # Target, Try, Radius
   def __init__(self, fIndividual, fParent, fChildren = [None,None, None]):
-    ThreewayNode.__init__(self, fIndividual, fParent,fChildren);
+    ThreewayNode.__init__(self, fIndividual, fParent,fChildren)
     self.Name = "Is Near Threeway Node"
   def evaluate(self, params):
     return (abs(params[0]-params[1]) <= abs(params[2]))
 
 class ConditionalThreewayNode(ThreewayNode):
   def __init__(self, fIndividual, fParent, fChildren = [None,None, None]):
-    ThreewayNode.__init__(self, fIndividual, fParent,fChildren);
-    self.OutType = TBoolean;
+    ThreewayNode.__init__(self, fIndividual, fParent,fChildren)
+    self.OutType = TBoolean
     self.AcceptsTypes = [TFloat, TBoolean, TInteger]
     self.Name = "Comparative Threeway Node"
   def __eval__(self): # This is a special case. A VERY SPECIAL CASE. The code might not be executed for one branch.
@@ -461,7 +461,7 @@ class ConditionalThreewayNode(ThreewayNode):
 
 Threeways = [ConditionalThreewayNode] #IsNearThreewayNode, 
 pass #################################### ** Helper Functions
-Nodes = Literals + Unaries + Binaries + Threeways;
+Nodes = Literals + Unaries + Binaries + Threeways
 NodeTypes = {}
 # Make a dictionary of every result type.
 #for noddy in Nodes:
@@ -479,9 +479,9 @@ def FindMeAChild(Terminal): # terminal says we must not return a linking node. R
 #  ShortList = [];
 #  TypeList = list(Types)
   if Terminal:
-    LongList = Literals;
+    LongList = Literals
   else:
-    LongList = Nodes;
+    LongList = Nodes
 #  for n in LongList:
 #    if TypeList.count(NodeTypes[n]) > 0:
 #      ShortList.append(n);
@@ -492,11 +492,11 @@ pass #################################### ** GA Classes
 
 stepsize = (popcount / 70)
 if stepsize == 0:
-  stepsize = 1;
+  stepsize = 1
 
 class Individual:
   def __init__(self):
-    self.Events = [PassThroughUnaryNode(self,None)];
+    self.Events = [PassThroughUnaryNode(self,None)]
     self.Fitness = []
     self.MyParams = []
   def __random__(self,depth = 11):
@@ -537,26 +537,26 @@ def OldMate(ParentA, ParentB): # sexually mate the two parents, and return a chi
   TargetNode = random.choice(GetTree(Child.Events[Rind]))
   #print "Source: "+SourceNode.__text__()
   #print "Target: "+TargetNode.__text__()
-  TargetParent = TargetNode.Parent;
+  TargetParent = TargetNode.Parent
   if TargetParent != None:
   #  print "Switching"
-    TargetParentChildIndex = WhichChild(TargetNode, TargetParent);
-  TargetNode = deepcopy(SourceNode);
+    TargetParentChildIndex = WhichChild(TargetNode, TargetParent)
+  TargetNode = deepcopy(SourceNode)
   if TargetParent != None:
     TargetNode.Parent = TargetParent;  # stitch it on
-    TargetParent.Children[TargetParentChildIndex] = TargetNode;
+    TargetParent.Children[TargetParentChildIndex] = TargetNode
   
   # During mating, the backreferences to the base individuals and the immediate parents get
   # a little scrambled. Brute force fix this. Not very efficient, but whattaya gonna do?
   for e in Child.Events:
     for n in GetTree(e):
       n.Individual = Child
-    e.__fix__();
+    e.__fix__()
   return Child
 
 def MateIndividuals(ParentA, ParentB): # Depricate me! Replace with the all-seeing Program node
   Child = Individual()
-  Child.Events = [Mate([ParentA.Events[0],ParentB.Events[0]], Child)];
+  Child.Events = [Mate([ParentA.Events[0],ParentB.Events[0]], Child)]
   Child.MyParams = [0,0]
   for n in GetTree(Child.Events[0]):
     n.Individual = Child
@@ -568,7 +568,7 @@ def Mate(Parents, aIndividual): # sexually mate any number of nodes to make new 
   # Parents are parent NODES not individuals.
   # Which one will it be?
   Parent = random.choice(Parents)
-  NewNode = copy(Parent);
+  NewNode = copy(Parent)
   # Now go through the children and mate them too. If there are no children, don't.
   for i in range(len(NewNode.Children)): # only count up to the new node's children. If there are none, sobeit.
     PossibleChildren = []
@@ -577,10 +577,10 @@ def Mate(Parents, aIndividual): # sexually mate any number of nodes to make new 
         # if this parent has an applicable child
         PossibleChildren = PossibleChildren + [copy(aParent.Children[i])]
     for child in PossibleChildren: #Fix the OO linkage.
-      child.Parent = NewNode;
-      child.Individual = aIndividual;
+      child.Parent = NewNode
+      child.Individual = aIndividual
     NewNode.Children[i] = Mate(PossibleChildren, aIndividual)
-  return NewNode;
+  return NewNode
 
 def Mutate(Ind): # mutate a subtree of this individual
   # select a subtree and randomize it. This could easily kill the organism, but is needed to stop the gene pool
@@ -613,8 +613,8 @@ def ChooseRandom(Population): # choose a random individual based on fitness
   index = 0
   #print "Slicepos = "+str(slicepos)
   while tf < slicepos:
-    tf = tf + pop[c[index]].Fitness[0];
-    index = index + 1;
+    tf = tf + pop[c[index]].Fitness[0]
+    index = index + 1
   # it really buggers if you don't do this. It's a cheap hack.
   index = index - 1
   #print "Chosen "+str(index)+" for parent - fitness" + str(pop[index].Fitness);
@@ -623,11 +623,11 @@ def ChooseRandom(Population): # choose a random individual based on fitness
 
 def pdot(n): # print a little dot to indicate we've done something. Progress indicator
   if n % stepsize == 0:
-    sys.stdout.write(".");
+    sys.stdout.write(".")
 
 def RandomizeIndividual(I, depth):
   I.MyParams = RandomParams()
-  I.__random__(depth);
+  I.__random__(depth)
 #  for e in I.Events:
 #    randomize(e,depth)
 
@@ -641,7 +641,7 @@ def NewPopulation(depth): # randomly initialise a new population up to popcount.
 
 def MateAll(): # perform mating on the entire population, kill the parents and replace them with Children
   global pop, newpop
-  newpop = [];
+  newpop = []
   #print "Mating:"
   while len(newpop) < popcount: # produce new population by sexual crossover.
  #   try:
@@ -651,9 +651,9 @@ def MateAll(): # perform mating on the entire population, kill the parents and r
       #doesn't matter - just try again!
  #     pass
   #print "Done Mating"
-  pop = newpop;
-  newpop = [];
-  print ""
+  pop = newpop
+  newpop = []
+  print("")
   # now we have a new population in wpop.
 
 def GetAllFitness(): #
@@ -664,15 +664,15 @@ def GetAllFitness(): #
   for p in pop:
     try:
       j = j + 1
-      pdot(j);
+      pdot(j)
       totfit = 0
       for i in range(10):
         p.MyParams = RandomParams()  # randomize parameters for each test
         p.Fitness = GetFitness(p)
         totfit = totfit + p.Fitness[0]
-      p.Fitness[0] = totfit / 10.0;
+      p.Fitness[0] = totfit / 10.0
     except: # Stop it from breeding if it excepts. Cruel :)
-      print "Error in evaluation"
+      print("Error in evaluation")
       p.Fitness = [0,0,0]
 
 # create the population
@@ -684,28 +684,28 @@ def RandomParams():
 
 
 def ClearFile(filename): # make a blank file and erase any file that's already there.
-  fitlog = open(filename,"w");
-  fitlog.close();
+  fitlog = open(filename,"w")
+  fitlog.close()
 
 def WriteToFile(filename, line):
   # Meant for fail-safe, not efficiency. Every time a line is written, it opens and closes the file
-  fitlog = open(filename,"a");
+  fitlog = open(filename,"a")
   fitlog.write(line)
-  fitlog.close();
+  fitlog.close()
 
 ClearFile("fitness.csv")
 ClearFile("samplelog.csv")
 ClearFile("Programs.txt")
 
 gen = 0
-print "Generating initial population"
+print("Generating initial population")
 NewPopulation(initialdepth)
 while (gen < genmax) or (genmax == -1): # Da Mane Lupe
 #while 0:
   # make the global parameters
   #GlobalParameters = [random.random()*3];
   #print GlobalParameters
-  print "\nMutating:"
+  print("\nMutating:")
   j = 0
   for p in pop: # mutate a few and randomize the old parameters
     p.MyParams = RandomParams()
@@ -713,30 +713,30 @@ while (gen < genmax) or (genmax == -1): # Da Mane Lupe
     pdot(j)
     try:
       if random.random() < 0.05: # but not too many
-        Mutate(p);
+        Mutate(p)
     except:
       pass # who cares?!
   # get the fitness ready for reproduction 
-  print "\nFinding Fitness:"
+  print("\nFinding Fitness:")
   GetAllFitness()
   qmax = pop[0]
   qmin = pop[0]
   s = 0
   ens = 0
   tot = 0
-  print "\nBucketing:"
-  bucketcount = 20;
-  buckets = [];
-  for i in range(bucketcount+2): buckets.append(0);
+  print("\nBucketing:")
+  bucketcount = 20
+  buckets = []
+  for i in range(bucketcount+2): buckets.append(0)
   for p in pop:
     buckets[int(bucketcount*(p.Fitness[0]+1)/100.0)] = buckets[int(bucketcount*(p.Fitness[0]+1)/100.0)]+1
   s = ""
   for q in buckets:
     s = s + str(q)+","
   s = s + "\n"
-  WriteToFile("fitness.csv",s);
+  WriteToFile("fitness.csv",s)
   s = 0
-  print "\nGetting Best of Generation:"
+  print("\nGetting Best of Generation:")
   for p in pop: # Get the Best Of Generation
     #p.RootNode.__tree__("  ")
     s = s + 1
@@ -748,26 +748,26 @@ while (gen < genmax) or (genmax == -1): # Da Mane Lupe
         qmax = p
         ens = s
     except:
-      print "¶ Error on "+str(s)
-      print "p.Fitness = "+ str(p.Fitness)
-      print "---------end error report"
+      print("¶ Error on "+str(s))
+      print("p.Fitness = "+ str(p.Fitness))
+      print("---------end error report")
   s = "\nNode "+str(ens)+":"+str(qmax.Fitness)
-  print "\n"
+  print("\n")
 
-  besttree = qmax.Events[0].__text__()+"\n";
-  print besttree
+  besttree = qmax.Events[0].__text__()+"\n"
+  print(besttree)
   #print qmax.Events[0].__tree__("  ");
 
-  WriteToFile("Programs.txt",s+"\n"+besttree);
+  WriteToFile("Programs.txt",s+"\n"+besttree)
 
   #---Uncomment to save a sample log to file. Legacy.
   #runlog = open("samplelog.csv","a")
   #GetFitness(qmax,runlog);
   #runlog.close();
   
-  print s
+  print(s)
   # do the reproduction
-  print "\nMating for generation "+str(gen)+":"
+  print("\nMating for generation "+str(gen)+":")
   MateAll()
   gen = gen + 1
 
@@ -789,6 +789,6 @@ for i in range(1):
   #print "Q2: "+Q2.__text__()
   M = MateIndividuals(Dummy,Dummy2)
   M.MyParams = [0,0]
-  print 'M:  '+M.Events[0].__text__()
-  print ev(M.Events[0])
+  print('M:  '+M.Events[0].__text__())
+  print(ev(M.Events[0]))
   #print Q.__text__()

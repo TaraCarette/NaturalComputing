@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from ypstruct import structure
+import math
 import ga8
 
 
@@ -38,6 +39,38 @@ def symbolic_expression(x):
     return sum(x**4 + x**3 + x**2 + x)
     #return sum(errors)
     
+def sphere(x):
+
+    return sum(x**2) # this is from the old code
+
+    # answer = sum(x**4 + x**3 + x**2 + x)
+
+#FYI, just added the functions below from the train (so early, fml). Not sure why it uses sum, but just copied it as sphere used it, else its
+#light work to remove again. log is always base 2 in this case right? Also, does sphere need to take x and y so it can also do **3 in one go?
+# soz if I misinterpreted the notes, these defs are the only changes I made :)
+
+def add(x, y):
+    return sum(x + y)
+
+def subtract(x, y):
+    return sum(x - y)
+
+def multiply(x, y):
+    return sum(x * y)
+
+def divide(x, y):
+    return sum(x / y)
+
+def sin(x):
+    return sum(math.sin(x))    
+
+def cos(x):
+    return sum(math.cos(x))
+
+def log(x):
+    return sum(math.log2(x))
+
+
 # The sum, taken over the 21 fitness cases,
 # of the absolute value of difference
 # between value of the dependent variable
