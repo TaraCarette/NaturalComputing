@@ -13,8 +13,9 @@ def run(problem, params):
     maxit = params.maxit
     npop = params.npop
     beta = params.beta
-    pc = params.pc
+    pc = params.pc # amount of children
     nc = int(np.round(pc*npop/2)*2)
+    
     gamma = params.gamma
     mu = params.mu
     sigma = params.sigma
@@ -49,7 +50,7 @@ def run(problem, params):
         probs = np.exp(-beta*costs)
 
         popc = []
-        for _ in range(nc//2):
+        for _ in range(nc//2): # number of children
 
             # Select Parents
             #q = np.random.permutation(npop)
